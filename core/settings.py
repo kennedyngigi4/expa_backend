@@ -31,6 +31,17 @@ CSRF_TRUSTED_ORIGINS = [
     "https://app.expa.co.ke",
 ]
 
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
+
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
 USE_X_FORWARDED_PORT = True
@@ -97,9 +108,8 @@ REST_FRAMEWORK = {
 
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
     'corsheaders.middleware.CorsMiddleware',
-
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',

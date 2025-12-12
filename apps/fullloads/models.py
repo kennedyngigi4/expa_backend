@@ -11,7 +11,11 @@ from geopy.distance import geodesic
 
 class VehicleType(models.Model):
     name = models.CharField(max_length=255)
+    weight = models.PositiveIntegerField(null=True)
     description = models.TextField()
+
+    class Meta:
+        ordering = ["weight"]
 
     def __str__(self):
         return self.name
