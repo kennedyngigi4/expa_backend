@@ -355,7 +355,7 @@ class IntraCityPriceCalculationView(APIView):
 class InterCountyPriceCalculator(APIView):
 
     def post(self, request):
-
+        print(request.data)
         try:
             data = request.data
             weight = Decimal(data.get("weight", 0))

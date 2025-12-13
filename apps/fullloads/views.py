@@ -15,7 +15,7 @@ from core.utils.payments import NobukPayments
 
 class VehicleTypesView(generics.ListAPIView):
     serializer_class = VehicleTypesSerializer
-    queryset = VehicleType.objects.all().order_by("name")
+    queryset = VehicleType.objects.all().order_by("weight")
 
 
 
