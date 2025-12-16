@@ -33,6 +33,9 @@ urlpatterns = [
     path( "api/fullloads/", include("apps.fullloads.urls")),
     path( "api/fullloads/manager/", include("apps.fullloads.manager.urls")),
 
+    #International orders
+    path( "api/international/", include("apps.international.urls")),
+
     # messaging urls
     path( "api/messaging/", include("apps.messaging.urls")),
     path( "api/messaging/partnershop/", include("apps.messaging.partnershop.urls")),
