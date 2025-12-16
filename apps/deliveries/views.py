@@ -355,7 +355,7 @@ class IntraCityPriceCalculationView(APIView):
 class InterCountyPriceCalculator(APIView):
 
     def post(self, request):
-        print(request.data)
+        
         try:
             data = request.data
             weight = Decimal(data.get("weight", 0))
@@ -415,7 +415,7 @@ class InterCountyPriceCalculator(APIView):
 
             base_fee = tier.price_per_kg if tier.min_weight == 0 else (tier.price_per_kg * chargeable_weight)
 
-            print(size_category_name)
+            
 
             # pickup fee
             pickup_fee = Decimal("0.00")
@@ -424,31 +424,36 @@ class InterCountyPriceCalculator(APIView):
                 pickup_distance_km = Decimal(round(pickup_distance_km, 2))
                 
                 print(pickup_distance_km)
-
                 pickup_fee = None
-
-                if size_category_name == "package":
-                    intracity = IntraCityPackagePricing.objects.filter(
-                        min_weight__lte=chargeable_weight,
-                        max_weight__gte =chargeable_weight,
-                        min_distance__lte=pickup_distance_km,
-                        max_distance__gte=pickup_distance_km,
-                    ).first()
-
-                    if intracity:
-                        pickup_fee = intracity.price
-
+                if pickup_distance_km <= origin_office.pickup_first_free_kms:
+                    pickup_fee = None
+                
                 else:
-                    intracity_policy = IntraCityParcelPolicy.objects.filter(
-                        office=origin_office
-                    ).first()
+                    chargeable_distance = pickup_distance_km - origin_office.pickup_first_free_kms
 
-                    if intracity_policy:
-                        if pickup_distance_km <= intracity_policy.base_km:
-                            pickup_fee = intracity_policy.base_price
-                        else:
-                            extra_km = pickup_distance_km - intracity_policy.base_km
-                            pickup_fee = intracity_policy.base_price + (extra_km * intracity_policy.extra_price_per_km)
+                    if size_category_name == "package":
+                        intracity = IntraCityPackagePricing.objects.filter(
+                            min_weight__lte=chargeable_weight,
+                            max_weight__gte =chargeable_weight,
+                            min_distance__lte=chargeable_distance,
+                            max_distance__gte=chargeable_distance,
+                        ).first()
+
+                        if intracity:
+                            pickup_fee = intracity.price
+
+                    else:
+                        intracity_policy = IntraCityParcelPolicy.objects.filter(
+                            office=origin_office
+                        ).first()
+
+                        if intracity_policy:
+
+                            if chargeable_distance <= intracity_policy.base_km:
+                                pickup_fee = intracity_policy.base_price
+                            else:
+                                extra_km = chargeable_distance - intracity_policy.base_km
+                                pickup_fee = intracity_policy.base_price + (extra_km * intracity_policy.extra_price_per_km)
 
                 
             # Last mile

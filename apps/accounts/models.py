@@ -16,6 +16,7 @@ class Office(models.Model):
     email = models.EmailField(verbose_name=_("email"))
     address = models.CharField(max_length=255, verbose_name=_("physical address"))
     description = models.TextField(verbose_name=_("description"))
+    pickup_first_free_kms = models.PositiveIntegerField(default=0)
 
     enable_pickup = models.BooleanField(default=True)
     pickup_discount_percent = models.DecimalField(

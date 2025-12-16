@@ -100,6 +100,7 @@ INSTALLED_APPS = [
     'apps.payments.apps.PaymentsConfig',
     'apps.corporate.apps.CorporateConfig',
     'apps.fullloads.apps.FullloadsConfig',
+    'apps.international.apps.InternationalConfig',
 ]
 
 
