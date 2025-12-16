@@ -424,12 +424,12 @@ class InterCountyPriceCalculator(APIView):
                 pickup_distance_km = Decimal(round(pickup_distance_km, 2))
                 
                 print(pickup_distance_km)
-                pickup_fee = None
-                if pickup_distance_km <= origin_office.pickup_first_free_kms:
-                    pickup_fee = None
+                free_km = origin_office.pickup_first_free_kms
+                if pickup_distance_km <= free_km:
+                    pickup_fee = Decimal("0.00")
                 
                 else:
-                    chargeable_distance = pickup_distance_km - origin_office.pickup_first_free_kms
+                    chargeable_distance = pickup_distance_km - free_km
 
                     if size_category_name == "package":
                         intracity = IntraCityPackagePricing.objects.filter(

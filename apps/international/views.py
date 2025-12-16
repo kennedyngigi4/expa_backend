@@ -13,7 +13,15 @@ from apps.international.models import *
 class InternationalCalculator(APIView):
 
     def post(self, request):
-        pass
+        try:
+            data = request.data
+            weight = Decimal(data.get("wight", 0))
+            city = data.get("city")
+
+            
+
+        except Exception as e: 
+            return Response({"success": False, "message": str(e)}, status=500)
 
     
 
