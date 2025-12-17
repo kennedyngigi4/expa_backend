@@ -35,7 +35,7 @@ class InternationalPolicy(models.Model):
     min_weight = models.DecimalField(max_digits=12, decimal_places=2)
     max_weight = models.DecimalField(max_digits=12, decimal_places=2)
     base_price = models.DecimalField(max_digits=12, decimal_places=2)
-    is_direct_price = models.BooleanField(default=False)
+    is_flat_price = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -54,17 +54,22 @@ class InternationalOrders(models.Model):
     id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4, unique=True)
     order_id = models.CharField(max_length=100, unique=True)
     
-    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sender")
-    sender_phone = models.CharField(max_length=15)
+    name = models.CharField(max_length=255, null=True)
+    is_fragile = models.BooleanField(default=False)
+    weight = models.DecimalField(max_digits=10, decimal_places=2)
 
     recipient_name = models.CharField(max_length=255)
     recipient_phone = models.CharField(max_length=30)
     recipient_email = models.EmailField()
+    description = models.TextField(null=True, blank=True)
 
-    weight = models.DecimalField(max_digits=10, decimal_places=2)
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sender")
+    sender_name = models.CharField(max_length=15, null=True)
+    sender_phone = models.CharField(max_length=15)
 
-    recipient_city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True, related_name="city")
+    city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True, related_name="city")
     price = models.DecimalField(max_digits=12, decimal_places=2)
+    mpesaphone = models.CharField(max_length=30, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
