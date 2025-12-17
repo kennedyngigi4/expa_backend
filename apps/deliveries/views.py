@@ -423,7 +423,7 @@ class InterCountyPriceCalculator(APIView):
                 pickup_distance_km = get_road_distance_km(sender_coords, (float(origin_office.geo_lat), float(origin_office.geo_lng)))
                 pickup_distance_km = Decimal(round(pickup_distance_km, 2))
                 
-                print(pickup_distance_km)
+                
                 free_km = origin_office.pickup_first_free_kms
                 if pickup_distance_km <= free_km:
                     pickup_fee = Decimal("0.00")

@@ -72,10 +72,6 @@ class CreateOrderView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         order = serializer.save(sender=self.request.user, created_by=self.request.user)
         
-        print(order.mpesaphone)
-        print(order.sender_name)
-        print(order.order_id)
-        print(order.price)
 
         NobukPayments(order.mpesaphone, order.sender_name, str(order.order_id), str(int(order.price)), "web").STKPush()
 
