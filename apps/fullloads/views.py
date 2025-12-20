@@ -1,5 +1,8 @@
-from django.shortcuts import render
 from decimal import Decimal
+
+from django.shortcuts import render
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
 
 from rest_framework import generics, status
 from rest_framework.response import Response
@@ -13,6 +16,7 @@ from core.utils.payments import NobukPayments
 # Create your views here.
 
 
+@method_decorator(cache_page(60 * 60 * 24), name="dispatch")
 class VehicleTypesView(generics.ListAPIView):
     serializer_class = VehicleTypesSerializer
     queryset = VehicleType.objects.all().order_by("weight")

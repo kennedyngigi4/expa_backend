@@ -4,6 +4,7 @@ from django.shortcuts import render
 from django.db.models import Q
 from django.conf import settings
 from django.db.models import Sum
+from django.core.cache import cache
 
 from rest_framework import generics, status
 from rest_framework.views import APIView
@@ -118,6 +119,7 @@ class AddOrderView(generics.CreateAPIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+
 class CustomerPackagesView(generics.ListAPIView):
     serializer_class = PackageSerializer
     queryset = Package.objects.all()
@@ -125,14 +127,26 @@ class CustomerPackagesView(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        return Package.objects.filter(
-            Q(created_by=user)
-        ).distinct().order_by('-created_at')
-        
+        return (
+            Package.objects
+            .filter(created_by=user)
+            .distinct()
+            .order_by('-created_at')
+        )
     
+    def list(self, request, *args, **kwargs):
+        user_id = self.request.user.id
+        cache_key = f"user_packages_{user_id}"
 
+        data = cache.get(cache_key)
+        if not data:
+            queryset = self.get_queryset()
+            serializer = self.get_serializer(queryset, many=True)
+            data = serializer.data
+
+            cache.set(cache_key, data, timeout=120)
+        return Response(data)
     
-
 
 class CustomerPackageRetrieveEditDeleteView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = PackageSerializer

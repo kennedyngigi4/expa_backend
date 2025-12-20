@@ -1,7 +1,9 @@
 import datetime
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.utils import timezone
+from django.core.cache import cache
+
 from apps.accounts.models import *
 from apps.deliveries.models import *
 from apps.deliveries.tasks import send_intracity_notifications
@@ -108,10 +110,10 @@ def notify_assigned_courier(sender, instance, created, **kwargs):
             )
 
 
-
-
-
-
+@receiver([post_save, post_delete], sender=Package)
+def clear_user_packages_cache(sender, instance, **kwargs):
+    if instance.created_by_id:
+        cache.delete(f"user_packages_{instance.created_by_id}")
 
 
 
