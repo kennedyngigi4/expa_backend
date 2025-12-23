@@ -5,6 +5,8 @@ from django.db.models import Q
 from django.conf import settings
 from django.db.models import Sum
 from django.core.cache import cache
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
 
 from rest_framework import generics, status
 from rest_framework.views import APIView
@@ -120,32 +122,17 @@ class AddOrderView(generics.CreateAPIView):
 
 
 
+@method_decorator(cache_page(60 * 2), name="list")
 class CustomerPackagesView(generics.ListAPIView):
-    serializer_class = PackageSerializer
-    queryset = Package.objects.all()
-    permission_classes = [ IsAuthenticated, IsOwnerOrAdmin ]
+    serializer_class = PackageListSerializer
+    permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
 
     def get_queryset(self):
         user = self.request.user
-        return (
-            Package.objects
-            .filter(created_by=user)
-            .distinct()
-            .order_by('-created_at')
-        )
-    
-    def list(self, request, *args, **kwargs):
-        user_id = self.request.user.id
-        cache_key = f"user_packages_{user_id}"
+        qs = Package.objects.filter(created_by=user).order_by("-created_at")
+        return qs
 
-        data = cache.get(cache_key)
-        if not data:
-            queryset = self.get_queryset()
-            serializer = self.get_serializer(queryset, many=True)
-            data = serializer.data
 
-            cache.set(cache_key, data, timeout=120)
-        return Response(data)
     
 
 class CustomerPackageRetrieveEditDeleteView(generics.RetrieveUpdateDestroyAPIView):

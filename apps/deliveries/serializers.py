@@ -170,6 +170,14 @@ class PackageSerializer(serializers.ModelSerializer):
         return None
 
 
+class PackageListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Package
+        fields = [ 
+            "id", "slug","name", "package_id", "status", "sender_address", "recipient_address", "recipient_name", "is_paid"
+        ]
+
+
 class ShipmentPackageSerializer(serializers.ModelSerializer):
     package = PackageSerializer()
     class Meta:
