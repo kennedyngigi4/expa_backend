@@ -3,6 +3,7 @@ from decimal import Decimal
 from django.shortcuts import render
 from django.views.decorators.cache import cache_page
 from django.utils.decorators import method_decorator
+from django.core.cache import cache
 
 from rest_framework import generics, status
 from rest_framework.response import Response
@@ -19,8 +20,17 @@ from core.utils.payments import NobukPayments
 @method_decorator(cache_page(60 * 60 * 24), name="dispatch")
 class VehicleTypesView(generics.ListAPIView):
     serializer_class = VehicleTypesSerializer
-    queryset = VehicleType.objects.all().order_by("weight")
 
+
+    def get_queryset(self):
+        cache_key = "vehicle_types_all"
+        qs = cache.get(cache_key)
+
+        if qs is None:
+            qs = VehicleType.objects.all().order_by("weight")
+            cache.set(cache_key, qs, 60 * 60 * 24)
+        
+        return qs
 
 
 
