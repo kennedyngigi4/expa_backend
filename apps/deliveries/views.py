@@ -122,17 +122,14 @@ class AddOrderView(generics.CreateAPIView):
 
 
 
-@method_decorator(cache_page(60 * 2), name="list")
 class CustomerPackagesView(generics.ListAPIView):
     serializer_class = PackageListSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
 
     def get_queryset(self):
         user = self.request.user
-        qs = Package.objects.filter(created_by=user).order_by("-created_at")
-        return qs
-
-
+        return Package.objects.filter(created_by=user).order_by("-created_at")
+        
     
 
 class CustomerPackageRetrieveEditDeleteView(generics.RetrieveUpdateDestroyAPIView):
