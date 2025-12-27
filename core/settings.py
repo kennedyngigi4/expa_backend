@@ -20,7 +20,7 @@ SECRET_KEY=os.getenv("SECRET_KEY")
 DEBUG = os.getenv("DEBUG") == "True"
 
 ALLOWED_HOSTS = [
-    'api.expa.co.ke','www.api.expa.co.ke', 'localhost', '127.0.0.1', '10.0.2.2'
+    'api.expa.co.ke','www.api.expa.co.ke', 'localhost', '127.0.0.1', '10.0.2.2', '31.97.176.84'
 ]
 CORS_ALLOWED_ORIGINS = [
     "https://app.expa.co.ke",
