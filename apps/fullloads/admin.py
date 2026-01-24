@@ -7,4 +7,4 @@ admin.site.register(VehiclePricing)
 admin.site.register(DistanceBand)
 admin.site.register(WeightTier)
 admin.site.register(Booking)
-
+admin.site.register(Surge)

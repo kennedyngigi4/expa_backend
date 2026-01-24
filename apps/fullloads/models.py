@@ -122,3 +122,14 @@ class Booking(models.Model):
 
 
 
+
+class Surge(models.Model):
+
+    locations = models.CharField(max_length=255)
+    surge_increase_percent = models.IntegerField(blank=True, null=True)
+    surge_decrease_percent = models.IntegerField(blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return str(self.locations)
+

@@ -33,54 +33,62 @@ class VehicleTypesView(generics.ListAPIView):
         return qs
 
 
+def find_matching_surge(destination_name):
+    for surge in Surge.objects.filter(is_active=True):
+        keywords = [ k.strip().lower() for k in surge.locations.split(",") ]
+        if any(keyword in destination_name for keyword in keywords):
+            return surge
+        
+    return None
+
 
 class CalculateFullloadPrice(APIView):
     def post(self, request, *args, **kwargs):
         data = request.data
-
-        print(data)
-
-        # 1. Extract inputs
+    
         try:
             weight = Decimal(data.get("weight", "0"))
             vehicle_id = data.get("vehicle")
             origin = data.get("origin_latLng")
             destination = data.get("destination_latLng")
+            destination_name = data.get("destination_name", "").lower()
+
         except Exception as e:
             return Response({"success": False, "message": f"Invalid input: {e}"}, status=400)
 
         if not all([weight, vehicle_id, origin, destination]):
             return Response({"success": False, "message": "Missing required fields"}, status=400)
 
-        # 2. Parse coordinates
+        
         try:
             origin_coords = tuple(map(float, origin.split(",")))
             destination_coords = tuple(map(float, destination.split(",")))
         except Exception:
             return Response({"success": False, "message": "Invalid coordinates"}, status=400)
 
-        # 3. Calculate distance
+        
         distance_km = get_road_distance_km(origin_coords, destination_coords)
+        
         if distance_km is None:
             return Response({"success": False, "message": "Failed to calculate road distance"}, status=400)
 
-        # 4. Find distance band
+        
         band = DistanceBand.objects.filter(min_km__lte=distance_km, max_km__gte=distance_km).first()
         if not band:
             return Response({"success": False, "message": "No pricing band for this distance"}, status=404)
 
-        # 5. Find weight tier
+        
         weight_tier = WeightTier.objects.filter(min_weight__lte=weight, max_weight__gte=weight).first()
         if not weight_tier:
             return Response({"success": False, "message": "No weight tier for this weight"}, status=404)
 
-        # 6. Find vehicle
+        
         try:
             vehicle = VehicleType.objects.get(id=vehicle_id)
         except VehicleType.DoesNotExist:
             return Response({"success": False, "message": "Invalid vehicle"}, status=404)
 
-        # 7. Find matching rate
+        
         rate = VehiclePricing.objects.filter(
             vehicle=vehicle,
             band=band,
@@ -90,14 +98,38 @@ class CalculateFullloadPrice(APIView):
         if not rate:
             return Response({"success": False, "message": "No rate configured for this request"}, status=404)
 
-        # 8. Calculate price
         if distance_km <= rate.base_distance:
-            total = float(rate.base_price)
+            total = Decimal(rate.base_price)
         else:
             extra_km = Decimal(str(distance_km)) - rate.base_distance
             total = rate.base_price + (extra_km * rate.extra_per_km)
 
         print(total)
+
+
+        surge_applied = None
+        surge_amount = Decimal("0")
+        matched_surge = find_matching_surge(destination_name)
+        print("Matched surge:", matched_surge)
+
+        if matched_surge:
+            if matched_surge.surge_increase_percent:
+                surge_amount = (matched_surge.surge_increase_percent / Decimal("100")) * total
+
+                total += surge_amount
+                surge_applied = {
+                    "type": "increase",
+                    "percent": matched_surge.surge_increase_percent
+                }
+
+            elif matched_surge.decrease_percent:
+                surge_amount = (matched_surge.decrease_percent / 100) * total
+                total -= surge_amount
+                surge_applied = {
+                    "type": "decrease",
+                    "percent": matched_surge.decrease_percent
+                }
+        print(f"Total: {total}")
 
         return Response({
             "success": True,
