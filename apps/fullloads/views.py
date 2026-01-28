@@ -33,10 +33,14 @@ class VehicleTypesView(generics.ListAPIView):
         return qs
 
 
-def find_matching_surge(destination_name):
+def find_matching_surge(destination_name, weight_tier):
+    destination_name = destination_name.lower()
+
     for surge in Surge.objects.filter(is_active=True):
         keywords = [ k.strip().lower() for k in surge.locations.split(",") ]
         if any(keyword in destination_name for keyword in keywords):
+            if surge.weight_tiers.exists() and weight_tier not in surge.weight_tiers.all():
+                continue
             return surge
         
     return None
@@ -109,8 +113,8 @@ class CalculateFullloadPrice(APIView):
 
         surge_applied = None
         surge_amount = Decimal("0")
-        matched_surge = find_matching_surge(destination_name)
-        print("Matched surge:", matched_surge)
+        matched_surge = find_matching_surge(destination_name, weight_tier)
+        
 
         if matched_surge:
             if matched_surge.surge_increase_percent:
