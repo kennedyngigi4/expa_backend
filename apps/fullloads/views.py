@@ -36,13 +36,22 @@ class VehicleTypesView(generics.ListAPIView):
 def find_matching_surge(destination_name, weight_tier):
     destination_name = destination_name.lower()
 
-    for surge in Surge.objects.filter(is_active=True):
+    surges = Surge.objects.filter(is_active=True)
+    matched_surges = []
+
+    for surge in surges:
         keywords = [ k.strip().lower() for k in surge.locations.split(",") ]
         if any(keyword in destination_name for keyword in keywords):
-            if surge.weight_tiers.exists() and weight_tier not in surge.weight_tiers.all():
-                continue
-            return surge
+            if surge.weight_tiers.exists():
+                surge_tier_ids = surge.weight_tiers.values_list("id", flat=True)
+                if weight_tier.id in surge_tier_ids:
+                    matched_surges.append(surge)
+            else:
+                matched_surges.append(surge)
         
+    if matched_surges:
+        return matched_surges[0]
+    
     return None
 
 
