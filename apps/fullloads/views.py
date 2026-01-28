@@ -38,26 +38,16 @@ def find_matching_surge(destination_name, weight_tier):
         return None
 
     destination_name = destination_name.lower()
-    matched_surges = []
+    surges = Surge.objects.filter(is_active=True)
 
-    for surge in Surge.objects.filter(is_active=True):
-        
+    for surge in surges:
         keywords = [k.strip().lower() for k in surge.locations.split(",")]
         if any(keyword in destination_name for keyword in keywords):
-            
-            if surge.weight_tiers.exists():
-                tier_ids = surge.weight_tiers.values_list("id", flat=True)
-                if weight_tier.id in tier_ids:
-                    matched_surges.append(surge)
-            else:
-                
-                pass
-
-    
-    if matched_surges:
-        return matched_surges[0]
+            if surge.weight_tiers and surge.weight_tiers.id == weight_tier.id:
+                return surge
 
     return None
+
 
 
 

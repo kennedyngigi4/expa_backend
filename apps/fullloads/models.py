@@ -126,16 +126,12 @@ class Booking(models.Model):
 class Surge(models.Model):
 
     locations = models.CharField(max_length=255)
-    weight_tiers = models.ManyToManyField(
-        WeightTier,
-        blank=True,
-        related_name="fullload_surges"
-    )
+    weight_tiers = models.ForeignKey(WeightTier, on_delete=models.CASCADE, null=True, blank=True,related_name="fullload_surges")
     
     surge_increase_percent = models.IntegerField(blank=True, null=True)
     surge_decrease_percent = models.IntegerField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return str(self.locations)
+        return f"{self.locations} - {self.weight_tiers.name}"
 
