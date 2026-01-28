@@ -34,25 +34,31 @@ class VehicleTypesView(generics.ListAPIView):
 
 
 def find_matching_surge(destination_name, weight_tier):
-    destination_name = destination_name.lower()
+    if weight_tier is None:
+        return None
 
-    surges = Surge.objects.filter(is_active=True)
+    destination_name = destination_name.lower()
     matched_surges = []
 
-    for surge in surges:
-        keywords = [ k.strip().lower() for k in surge.locations.split(",") ]
+    for surge in Surge.objects.filter(is_active=True):
+        
+        keywords = [k.strip().lower() for k in surge.locations.split(",")]
         if any(keyword in destination_name for keyword in keywords):
+            
             if surge.weight_tiers.exists():
-                surge_tier_ids = surge.weight_tiers.values_list("id", flat=True)
-                if weight_tier.id in surge_tier_ids:
+                tier_ids = surge.weight_tiers.values_list("id", flat=True)
+                if weight_tier.id in tier_ids:
                     matched_surges.append(surge)
             else:
-                matched_surges.append(surge)
-        
+                
+                pass
+
+    
     if matched_surges:
         return matched_surges[0]
-    
+
     return None
+
 
 
 class CalculateFullloadPrice(APIView):
