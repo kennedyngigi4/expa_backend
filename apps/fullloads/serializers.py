@@ -14,7 +14,9 @@ class BookingWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Booking
         fields = [
-            "id", "sender", "vehicle", "pickup_address", "pickup_latLng", "dropoff_address", "distance", "price", "weight", "created_at", "payment_phone"
+            "id", "sender", "vehicle", "pickup_address", "pickup_latLng", 
+            "dropoff_address", "distance", "price", "weight", "created_at", "payment_phone",
+            "recipient_name", "recipient_phone"
         ]
 
         read_only_fields = [
@@ -28,7 +30,8 @@ class BookingReadSerializer(serializers.ModelSerializer):
     class Meta:
         model = Booking
         fields = [
-            "id", "sender", "vehicle", "pickup_address", "pickup_latLng", "dropoff_address", "distance", "price", "weight", "created_at", "payment_phone", "booking_id"
+            "id", "sender", "vehicle", "pickup_address", "pickup_latLng", "dropoff_address", "distance", 
+            "price", "weight", "created_at", "payment_phone", "booking_id", "recipient_name", "recipient_phone",
         ]
 
     def get_vehicle(self, obj):

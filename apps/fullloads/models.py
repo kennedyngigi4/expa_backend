@@ -65,17 +65,25 @@ def generateID(pref):
     return f"{pref}{random_id}"
 
 class Booking(models.Model):
+    
     id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False, unique=True)
     booking_id = models.CharField(max_length=20, unique=True, null=True)
+    
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="customer")
     vehicle = models.ForeignKey(VehicleType, on_delete=models.SET_NULL, null=True, related_name="booked_vehicle")
+    
     pickup_address = models.CharField(max_length=255)
     pickup_latLng = models.CharField(max_length=70, null=True, verbose_name=_("sender latitude,longitude"))
     dropoff_address = models.CharField(max_length=255)
     origin_office = models.ForeignKey(Office, null=True, blank=True, on_delete=models.SET_NULL, related_name='origin')
+    
     distance =  models.DecimalField(max_digits=10, decimal_places=2)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     weight = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    recipient_name = models.CharField(max_length=255, null=True)
+    recipient_phone = models.CharField(max_length=30, null=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     payment_phone = models.CharField(max_length=20, null=True, blank=True, verbose_name=_("payment phone"))
 

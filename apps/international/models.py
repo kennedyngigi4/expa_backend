@@ -87,6 +87,6 @@ class InternationalOrders(models.Model):
 
 
     def __str__(self):
-        return f"Sent by {self.sender.full_name} to {self.recipient_name} in {self.recipient_city.name}"
+        return f"Sent by {self.sender.full_name} to {self.recipient_name} in {self.city.name}"
 
 
