@@ -60,7 +60,7 @@ class InternationalOrders(models.Model):
 
     recipient_name = models.CharField(max_length=255)
     recipient_phone = models.CharField(max_length=30)
-    recipient_email = models.EmailField()
+    recipient_email = models.EmailField(null=True, blank=True)
     description = models.TextField(null=True, blank=True)
 
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sender")
