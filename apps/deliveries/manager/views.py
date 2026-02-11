@@ -12,7 +12,7 @@ from apps.accounts.models import *
 from apps.accounts.permissions import *
 from apps.deliveries.models import *
 from apps.deliveries.serializers import *
-
+from apps.deliveries.manager.serializers import *
 
 
 class ManagerDashboardStatsView(APIView):
@@ -176,7 +176,7 @@ class ManagerIncomingPackagesView(ListAPIView):
 
 
 class ManagerPackageDetailsView(generics.RetrieveUpdateDestroyAPIView):
-    serializer_class = PackageSerializer
+    serializer_class = ManagerPackageReadSerializer
     queryset = Package.objects.all()
     permission_classes = [IsAuthenticated, IsManager]
 

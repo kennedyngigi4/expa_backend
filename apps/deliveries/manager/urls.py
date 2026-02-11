@@ -3,6 +3,7 @@ from apps.deliveries.manager.views import *
 
 
 
+
 urlpatterns = [
     path( "dashboard/", ManagerDashboardStatsView.as_view(), name='dashboard', ),
     path( "origin_packages/", ManagerOriginPackagesView.as_view(), name="origin_packages", ),
