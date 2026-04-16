@@ -138,6 +138,7 @@ def generate_shipment_pdf(request):
 
 def generate_package_pdf(request):
     ids = request.GET.get("ids")
+
     if not ids:
         return HttpResponse("No package IDs provided", status=400)
 
