@@ -3,6 +3,7 @@ from django.db import models
 from apps.accounts.models import *
 from apps.deliveries.models import *
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 user = get_user_model()
 # Create your models here.
@@ -72,17 +73,48 @@ class ConsolidatedInvoice(models.Model):
 
 
 class Payment(models.Model):
+
+    PAYMENT_METHODS = [
+        ("mpesa", "mpesa"),
+        ("cash", "cash"),
+        ("card", "card"),
+    ]
+
+
+    PAYMENT_STATUS = [
+        ("pending", "pending"),
+        ("completed", "completed"),
+        ("failed", "failed"),
+        ("cancelled", "cancelled"),
+    ]
    
     id = models.UUIDField(primary_key=True, editable=False, unique=True, default=uuid.uuid4)
     invoice_id = models.ForeignKey(Invoice, on_delete=models.SET_NULL, null=True)
-    amount = models.CharField(max_length=28, null=True)
-    transaction_code = models.CharField(max_length=255, null=True)
-    customer_name = models.CharField(max_length=255, null=True)
+
+    amount = models.DecimalField(max_digits=15, decimal_places=2, null=True)
+
+    transaction_code = models.CharField(max_length=255, null=True, blank=True)
+    receipt_number = models.CharField(max_length=100, null=True, blank=True, unique=True) #cash
+
+    payment_method = models.CharField( max_length=20, choices=PAYMENT_METHODS, default="mpesa")
+    status = models.CharField(max_length=20, choices=PAYMENT_STATUS, default="pending")
+
+    received_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="cash_received")
+    customer_name = models.CharField(max_length=255, null=True, blank=True)
     phone_number = models.CharField(max_length=50, null=True, blank=True)
+
     date_created = models.DateTimeField(auto_now_add=True)
 
+
+    def save(self, *args, **kwargs):
+        if self.payment_method == "cash" and not self.receipt_number:
+            today = timezone.now().strftime("%Y%m%d")
+            short_id = str(uuid.uuid4()).split("-")[0].upper()
+            self.receipt_number = f"CASH-{today}-{short_id}"
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        return self.transaction_code
+        return f"{self.payment_method} - {self.amount}"
 
 
 class PaymentsLog(models.Model):

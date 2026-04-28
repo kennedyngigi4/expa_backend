@@ -11,7 +11,7 @@ from apps.payments.models import Invoice
 from apps.messaging.views import intracity_drivers_notification
 from apps.messaging.utils import send_notification
 from django.db import transaction
-from core.utils.payments import NobukPayments
+from core.utils.payments import NobukPayments, CashPayments
 from apps.messaging.utils import send_message
 from core.utils.emails import send_order_creation_email, send_order_creation_email_admin
 
@@ -60,7 +60,14 @@ def process_package_invoice(package_id):
 
             elif package.payment_method == "card":
                 print("Payment via card – task only.")
-        
+
+            elif package.payment_method == "cash":
+                CashPayments(
+                    amount,
+                    package.sender_user,
+                    str(invoice_id),
+                    package.payment_method,
+                ).register_transaction()
 
         # Emails
         send_order_creation_email(user, package)

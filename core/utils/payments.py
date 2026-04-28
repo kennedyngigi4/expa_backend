@@ -1,5 +1,28 @@
 import requests
+from apps.payments.models import Payment
 from django.conf import settings
+
+
+
+class CashPayments:
+
+    def __init__(self, amount=None, received_by=None, order_id=None, payment_method=None):
+        self.amount = amount
+        self.received_by = received_by
+        self.order_id = order_id
+        self.payment_method = payment_method
+
+
+    def register_transaction(self):
+        transaction = Payment.objects.create(
+            amount=self.amount,
+            received_by=self.received_by,
+            order_id=self.order_id,
+            payment_method=self.payment_method,
+        )
+        return transaction
+
+
 
 
 class NobukPayments():

@@ -225,6 +225,7 @@ class Package(models.Model):
 
     PAYMENT_METHODS = [
         ( "mpesa", "mpesa", ),
+        ( "cash", "cash", ),
         ( "card", "card", ),
     ]
 

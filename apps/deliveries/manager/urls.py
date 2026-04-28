@@ -6,6 +6,8 @@ from apps.deliveries.manager.views import *
 
 urlpatterns = [
     path( "dashboard/", ManagerDashboardStatsView.as_view(), name='dashboard', ),
+    path( "create_order/", ManagerCreateOrderView.as_view(), name="create_order" ),
+    
     path( "origin_packages/", ManagerOriginPackagesView.as_view(), name="origin_packages", ),
     path( "incoming_packages/", ManagerIncomingPackagesView.as_view(), name="incoming_packages", ),
     path( "package_details/<str:pk>/", ManagerPackageDetailsView.as_view(), name="package_details", ),

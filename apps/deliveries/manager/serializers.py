@@ -9,6 +9,16 @@ class PackageItemsSerializer(serializers.ModelSerializer):
         ]
 
 
+class ManagerPackageWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Package
+        fields = [
+            'name', 'is_fragile', 'sender_name', 'sender_phone', 'sender_address', 'recipient_name', 'recipient_phone', 
+            'recipient_address', 'requires_pickup', 'requires_last_mile', 'payment_phone', 'payment_method', 'size_category', 
+            'fees', 'sender_latLng', 'recipient_latLng', 'delivery_type', 'weight'
+        ]
+
+
 class ManagerPackageReadSerializer(serializers.ModelSerializer):
     package_items = PackageItemsSerializer(many=True, required=False)
     urgency_name = serializers.SerializerMethodField()

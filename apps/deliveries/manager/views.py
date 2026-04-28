@@ -47,6 +47,23 @@ class ManagerDashboardStatsView(APIView):
 
 
 
+class ManagerCreateOrderView(APIView):
+    permission_classes = [ IsManager, IsAuthenticated]
+
+    def post(self, request):
+        user = self.request.user
+        serializer = ManagerPackageWriteSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(
+                created_by=user,
+                created_by_role=user.role,
+                sender_user=user,
+            )
+            return Response({ "success": True, "message": "Upload successful"}, status=status.HTTP_201_CREATED)
+
+        print(serializer.error_messages)
+        return Response({ "success": False, "message": "An error occured"}, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class ManagerOriginPackagesView(ListAPIView):
