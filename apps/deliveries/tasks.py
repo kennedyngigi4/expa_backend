@@ -86,6 +86,15 @@ def send_intracity_notifications(self, package_id, round_number=1, total_rounds=
         logger.warning(f"⚠️ Package {package_id} not found when sending notifications.")
         return
 
+
+    # Only notify paid orders
+    if not package.is_paid:
+        logger.info(
+            f"💰 Package {package.package_id} is not paid "
+            f"(status={package.payment_status}). Skipping notifications."
+        )
+        return
+
     
     if package.status in ["assigned", "in_transit", "delivered"]:
         logger.info(f"✅ Package {package.package_id} already accepted, skipping notification.")

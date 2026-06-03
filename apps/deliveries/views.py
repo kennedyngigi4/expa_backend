@@ -233,7 +233,7 @@ class IntraCityPriceCalculationView(APIView):
 
     def post(self, request):
         data = request.data
-        print(data)
+        
         try:
             
             weight = Decimal(data.get("weight", 0))
@@ -285,12 +285,10 @@ class IntraCityPriceCalculationView(APIView):
             
             policy = valid_policy
 
-            if weight > policy.max_weight:
-                size_category_name = "package"
-            else:
-                size_category_name = "parcel"
+            size_category_name = ( "package" if weight > policy.max_weight else "parcel")
             
             if size_category_name == "parcel":
+
                 if distance_km > policy.max_distance_km:
                     return Response({
                         "success": False,
@@ -299,16 +297,17 @@ class IntraCityPriceCalculationView(APIView):
                 
                 if distance_km <= policy.base_km:
                     price = policy.base_price
+
                 else:
-                    extra_km =  Decimal(distance_km) -policy.base_km
+                    extra_km =  Decimal(str(distance_km)) -policy.base_km
                     price = policy.base_price + (extra_km * policy.extra_price_per_km)
 
-                    return Response({
-                        "success": True,
-                        "distance_km": round(distance_km, 2),
-                        "total_fee": round(price),
-                        "size_category": "1" if size_category_name == "parcel" else "2"
-                    })
+                return Response({
+                    "success": True,
+                    "distance_km": round(distance_km, 2),
+                    "total_fee": round(price),
+                    "size_category": "1" if size_category_name == "parcel" else "2"
+                })
                 
              
             if size_category_name == "package":
@@ -322,8 +321,6 @@ class IntraCityPriceCalculationView(APIView):
                     min_distance__lte=distance_km,
                     max_distance__gte=distance_km
                 ).first()
-
-
 
                 if not package_policy:
                     return Response({
@@ -342,7 +339,7 @@ class IntraCityPriceCalculationView(APIView):
             
             return Response({
                 "success": False,
-                "message": "Invalid size_category."
+                "message": "Invalid size category."
             }, status=400)
 
         except Exception as e:
