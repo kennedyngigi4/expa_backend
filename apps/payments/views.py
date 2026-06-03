@@ -24,6 +24,7 @@ from django.utils.decorators import method_decorator
 
 
 from apps.accounts.permissions import IsAdmin
+from apps.deliveries.signals import _schedule_driver_notification
 from apps.payments.models import *
 from apps.payments.serializers import *
 from apps.payments.services import consolidated_invoices
@@ -193,6 +194,8 @@ class PaymentCallbackView(APIView):
             package = invoice.package
             package.is_paid = True
             package.save()
+
+            _schedule_driver_notification(package)
 
             # register the payment
             Payment.objects.create(

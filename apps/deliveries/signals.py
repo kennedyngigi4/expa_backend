@@ -23,11 +23,7 @@ def send_delivery_notifications_to_drivers(sender, instance, created, **kwargs):
     if not created:
         return 
 
-    # for intra_city
-    if instance.delivery_type == "intra_city":
-        _schedule_driver_notification(instance)
-
-    elif instance.delivery_type == "inter_county" and instance.requires_pickup:
+    if instance.delivery_type == "inter_county" and instance.requires_pickup:
         _schedule_driver_notification(instance)
 
 
